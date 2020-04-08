@@ -25,7 +25,7 @@ public partial class Card
     }
 
     //----------------------------------------------
-    public CardComponent Spawn()
+ /*   public CardComponent Spawn()
     {
         if (CardStaticData.Instance.Prefab != null)
         {
@@ -39,7 +39,7 @@ public partial class Card
             return cardComp;
         }
         return null;
-    }
+    }*/
 
     public void Play(ActionQueue actionQueue)
     {

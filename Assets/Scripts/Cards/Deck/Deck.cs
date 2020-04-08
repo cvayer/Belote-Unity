@@ -165,9 +165,19 @@ public class Deck
         return requested > Size;
     }
 
+    private static int CompareByFamilyAndValue(Card a, Card b)
+    {
+        int compareFamily = a.Family.CompareTo(b.Family);
+        if(compareFamily == 0)
+        {
+              return a.Value.CompareTo(b.Value);  
+        }
+        return compareFamily;
+    }
+
     public void SortByFamilyAndValue()
     {
-        //Cards.Sort(new IComparer<Card>());
+        Cards.Sort(CompareByFamilyAndValue);
     }
 
     public void Print(string prefix)

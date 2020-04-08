@@ -133,7 +133,7 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
         spawnRef.y = -3;
         foreach (Card card in hand)
         {
-            CardComponent newCard = card.Spawn();
+            CardComponent newCard = null; //card.Spawn();
             if (newCard)
             {
                 m_handCards.Add(newCard);

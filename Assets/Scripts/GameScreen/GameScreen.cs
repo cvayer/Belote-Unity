@@ -193,6 +193,7 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
         }
         foreach (Player player in m_players)
         {
+            player.Hand.SortByFamilyAndValue();
             player.PrintHand();
         }
     }

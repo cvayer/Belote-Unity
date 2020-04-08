@@ -225,6 +225,104 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
+  CardSprites:
+  - Value: 0
+    FamilyEnum: 0
+    Prefab: {fileID: 21300000, guid: a9d0fb3ca3b1f2c4990f645c7c0ea91f, type: 3}
+  - Value: 1
+    FamilyEnum: 0
+    Prefab: {fileID: 21300000, guid: 095579a0663ceed47aa9422af5497976, type: 3}
+  - Value: 2
+    FamilyEnum: 0
+    Prefab: {fileID: 21300000, guid: bdf30df103c2e4740b89cd0800127d97, type: 3}
+  - Value: 3
+    FamilyEnum: 0
+    Prefab: {fileID: 21300000, guid: 8abd051874ea22044b663e54d414a3ea, type: 3}
+  - Value: 4
+    FamilyEnum: 0
+    Prefab: {fileID: 21300000, guid: b819dbea44fcb1a468df82054e55cb2e, type: 3}
+  - Value: 5
+    FamilyEnum: 0
+    Prefab: {fileID: 21300000, guid: 07d81b2dc879d7b4f9bf5f804131b2db, type: 3}
+  - Value: 6
+    FamilyEnum: 0
+    Prefab: {fileID: 21300000, guid: 976db6c8e1d4b30429397017514099fc, type: 3}
+  - Value: 7
+    FamilyEnum: 0
+    Prefab: {fileID: 21300000, guid: d8862dfe4f6d4a44bbbc25f4ac8857a0, type: 3}
+  - Value: 0
+    FamilyEnum: 1
+    Prefab: {fileID: 21300000, guid: 7a9372839b0af1346b7bdd4b16d689ab, type: 3}
+  - Value: 1
+    FamilyEnum: 1
+    Prefab: {fileID: 21300000, guid: 6dae6b9a5781f954d9ce4899bee5cb19, type: 3}
+  - Value: 2
+    FamilyEnum: 1
+    Prefab: {fileID: 21300000, guid: 72a36cf3d4ed63b488a5b4118060d114, type: 3}
+  - Value: 3
+    FamilyEnum: 1
+    Prefab: {fileID: 21300000, guid: 25a19aad58ceaa045a8bdcf4133cd49a, type: 3}
+  - Value: 4
+    FamilyEnum: 1
+    Prefab: {fileID: 0}
+  - Value: 5
+    FamilyEnum: 1
+    Prefab: {fileID: 21300000, guid: b58db27de8e040644bf68f3c86482d2c, type: 3}
+  - Value: 6
+    FamilyEnum: 1
+    Prefab: {fileID: 21300000, guid: f3215dd3085ba6344ae420a1a6f0486f, type: 3}
+  - Value: 7
+    FamilyEnum: 1
+    Prefab: {fileID: 21300000, guid: a7ce41789f6956940a732f7af9c24146, type: 3}
+  - Value: 0
+    FamilyEnum: 2
+    Prefab: {fileID: 21300000, guid: 3579f2b21f32fed4287d759d826926f4, type: 3}
+  - Value: 1
+    FamilyEnum: 2
+    Prefab: {fileID: 21300000, guid: b6cc243d6b71baf4f81f7272ec91e80c, type: 3}
+  - Value: 2
+    FamilyEnum: 2
+    Prefab: {fileID: 21300000, guid: a7596063feba38e44a7920fbdf1e34b8, type: 3}
+  - Value: 3
+    FamilyEnum: 2
+    Prefab: {fileID: 21300000, guid: c92254fee1bdd6e4cb32ed8fafa6a75a, type: 3}
+  - Value: 4
+    FamilyEnum: 2
+    Prefab: {fileID: 21300000, guid: bcbbbc50d0a53e7448f416f1cd17d84b, type: 3}
+  - Value: 5
+    FamilyEnum: 2
+    Prefab: {fileID: 21300000, guid: 7ae2f0962353c574dbaa22694700db10, type: 3}
+  - Value: 6
+    FamilyEnum: 2
+    Prefab: {fileID: 21300000, guid: 01d2b31d4f8733c49a99d23e5d596321, type: 3}
+  - Value: 7
+    FamilyEnum: 2
+    Prefab: {fileID: 21300000, guid: 3bcf6df56824ecb48ae5b6dfefe462ac, type: 3}
+  - Value: 0
+    FamilyEnum: 3
+    Prefab: {fileID: 21300000, guid: 7e5513d6bdfbc394fb29fc8ceb5ffadc, type: 3}
+  - Value: 1
+    FamilyEnum: 3
+    Prefab: {fileID: 21300000, guid: bbf0dee938cfa1d4196ab0d4700a2baf, type: 3}
+  - Value: 2
+    FamilyEnum: 3
+    Prefab: {fileID: 21300000, guid: 9e63ac30a3021334b81914e81400f7ff, type: 3}
+  - Value: 3
+    FamilyEnum: 3
+    Prefab: {fileID: 21300000, guid: 90192c82a4f0aec4582e0c6c294939ed, type: 3}
+  - Value: 4
+    FamilyEnum: 3
+    Prefab: {fileID: 21300000, guid: 57cb2c62b4185e544bcc64e63cbf025b, type: 3}
+  - Value: 5
+    FamilyEnum: 3
+    Prefab: {fileID: 21300000, guid: df92612517b1ffc468ce6b5a033be601, type: 3}
+  - Value: 6
+    FamilyEnum: 3
+    Prefab: {fileID: 21300000, guid: 301149d944cdb8d4a9f1049f0581ab6a, type: 3}
+  - Value: 7
+    FamilyEnum: 3
+    Prefab: {fileID: 21300000, guid: 39b2e5029ca5bc34db0844d6bf443215, type: 3}
+  BackSprite: {fileID: 21300000, guid: d61724d07170a254e9cd5f35e23583e2, type: 3}
   Prefab: {fileID: 1273514626118894, guid: 180acf99e87f2c049a171d98a8a23aa1, type: 3}
 --- !u!4 &1626195819
 Transform:
@@ -303,7 +401,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 16
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
