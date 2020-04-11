@@ -10,7 +10,7 @@ using System;
 public class CardSpriteRef
 {
     public CardEnum Value;
-    public CardFamilyEnum FamilyEnum;
+    public CardFamilyEnum Family;
 
     [AssetsOnly]
     public Sprite Prefab;

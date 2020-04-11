@@ -18,5 +18,5 @@ public enum CardFamilyEnum
     Clubs,
     Heart,
     Diamond,
-    Spades,
+    Spade,
 }

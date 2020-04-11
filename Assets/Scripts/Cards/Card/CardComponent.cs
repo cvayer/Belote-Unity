@@ -13,7 +13,7 @@ public class CardComponent : MonoBehaviour
     private Card m_card;
     private bool m_isHovered = false;
     private bool m_isSelected = false;
-    private Vector3 m_posInHand = new Vector3();
+    private Vector3 m_initialPosition = new Vector3();
 
     //----------------------------------------------
     // Properties
@@ -44,57 +44,75 @@ public class CardComponent : MonoBehaviour
         m_card = card;
         m_isHovered = false;
         m_isSelected = false;
-       /* SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer != null)
+
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if(spriteRenderer != null)
         {
-            spriteRenderer.color = m_card.Definition.Color;
-        }*/
+            spriteRenderer.sprite = CardStaticData.Instance.GetSprite(m_card.Value, m_card.Family);
+        }
+
+        gameObject.name = m_card.Value + " of " + m_card.Family;
     }
 
-    public void SetPosInHand(Vector3 posInHand)
+    public void SetInitialPosition(Vector3 initialPosition)
     {
-        transform.localPosition = posInHand;
-        m_posInHand = posInHand;
+        transform.localPosition = initialPosition;
+        m_initialPosition = initialPosition;
+    }
+
+    bool CanBeSelected()
+    {
+        bool isHuman = m_card.Owner as HumanPlayer != null;
+        if(isHuman)
+        {
+            Player player = m_card.Owner as Player;
+            return player.CanPlay(m_card);
+        }
+       
+        return false;
     }
     
 
     // Update is called once per frame
     void Update()
     {
-        GameObject underMouse = Picker.Instance.UnderMouse;
+        if(CanBeSelected())
+        {
+            GameObject underMouse = Picker.Instance.UnderMouse;
 
-        if (underMouse != null && underMouse == gameObject)
-        {
-            SetHovered(true);
-        }
-        else
-        {
-            SetHovered(false);
-        }
-
-        if(Hovered && !Selected)
-        {
-            if (Input.GetMouseButtonDown(0))
+            if (underMouse != null && underMouse == gameObject)
             {
-                SetSelected(true);
+                SetHovered(true);
             }
-        }
+            else
+            {
+                SetHovered(false);
+            }
 
-        if (Selected && Input.GetMouseButtonUp(0))
-        {
-            SetSelected(false);
-        }
+            if(Hovered && !Selected)
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    SetSelected(true);
+                }
+            }
 
-        if(m_isSelected)
-        {
-            Vector3 newPos = new Vector3();
-            newPos = Picker.Instance.MouseWorldPos;
-            newPos.z -= 0.1f;
-            transform.localPosition = newPos;
-        }
-        else
-        {
-            transform.localPosition = m_posInHand;
+            if (Selected && Input.GetMouseButtonUp(0))
+            {
+                SetSelected(false);
+            }
+
+            if(m_isSelected)
+            {
+                Vector3 newPos = new Vector3();
+                newPos = Picker.Instance.MouseWorldPos;
+                newPos.z -= 0.1f;
+                transform.localPosition = newPos;
+            }
+            else
+            {
+                transform.localPosition = m_initialPosition;
+            }
         }
     }
 
@@ -126,7 +144,7 @@ public class CardComponent : MonoBehaviour
     {
         if(selected != m_isSelected)
         {
-            bool isInHandArea = IsInHandArea();
+            bool isInHandArea = IsMouseInHandArea();
 
             m_isSelected = selected;
 
@@ -136,13 +154,9 @@ public class CardComponent : MonoBehaviour
         }
     }
 
-    protected bool IsInHandArea()
+    protected bool IsMouseInHandArea()
     {
-        if(Selected)
-        {
-            Rect rect = new Rect(0, Screen.height / 2, Screen.width, Screen.height / 2);
-            return rect.Contains(Input.mousePosition);
-        }
-        return false;
+        Vector3 mouseToInitial = Input.mousePosition - gameObject.transform.position;
+        return mouseToInitial.magnitude >= 1.0f;
     }
 }

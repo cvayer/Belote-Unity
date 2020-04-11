@@ -14,8 +14,8 @@ public class Player : IDeckOwner
     // Variables
     protected GameScreen m_screen;
     private   Deck m_hand;
-    protected PlayerTeam m_team;
 
+    private bool m_isAllowedToPlay = false;
 
     //----------------------------------------------
     // Properties
@@ -32,17 +32,7 @@ public class Player : IDeckOwner
         }
     }
 
-    public PlayerTeam Team
-    {
-        get
-        {
-            return m_team;
-        }
-        set
-        {
-            m_team = value;
-        }
-    }
+    public PlayerTeam Team { get; set; }
 
     public Deck Hand
     {
@@ -54,6 +44,8 @@ public class Player : IDeckOwner
 
     public string Name { get; set; }
 
+    public PlayerPosition Position { get; set; }
+
     //----------------------------------------------
     public Player()
     {
@@ -63,6 +55,8 @@ public class Player : IDeckOwner
     //----------------------------------------------
     public void Init()
     {
+        EventManager.Subscribe<GameScreen.NewTurnEvent>(this.OnNewTurn);
+
         OnInit();
     }
 
@@ -76,6 +70,7 @@ public class Player : IDeckOwner
     public void Shutdown()
     {
         OnShutdown();
+        EventManager.UnSubscribe<GameScreen.NewTurnEvent>(this.OnNewTurn);
     }
 
     //--------------------------------------------------------------------
@@ -107,9 +102,9 @@ public class Player : IDeckOwner
     }
 
     //----------------------------------------------
-    protected bool CanPlay(Card card)
+    public bool CanPlay(Card card)
     {
-        if (Hand.Contains(card))
+        if (m_isAllowedToPlay && Hand.Contains(card))
         {
             return true;
         }
@@ -120,7 +115,26 @@ public class Player : IDeckOwner
     protected void DoPlay(Card card, Deck fold)
     {
         m_hand.MoveCardTo(card, fold);
+        card.OnPlay();
     }
+
+    //----------------------------------------------
+    private void OnNewTurn(GameScreen.NewTurnEvent evt)
+    {
+       if(Screen.CurrentPlayer == this && m_isAllowedToPlay == false)
+       {
+           m_isAllowedToPlay = true;
+           OnTurnStart();
+       }
+       else if( m_isAllowedToPlay == true)
+       {
+           m_isAllowedToPlay = false;
+           OnTurnStop();
+       }
+    }
+
+    protected virtual void OnTurnStart() {}
+    protected virtual void OnTurnStop() {}
 
     public void PrintHand()
     {

@@ -11,8 +11,7 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
 {
     //----------------------------------------------
     // Variables
-    private List<CardComponent> m_handCards;
-    private List<GameObject> m_minions;
+    private List<CardComponent> m_cards;
 
     //----------------------------------------------
     // Properties
@@ -22,20 +21,21 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
     //-------------------------------------------------------
     public GameScreenRenderer()
     {
-        m_handCards = new List<CardComponent>();
-        m_minions = new List<GameObject>();
+        m_cards = new List<CardComponent>();
     }
 
     protected override void OnInit()
     {
-        EventManager.Subscribe<Turn.StateEvent>(this.OnTurnStateChanged, EventChannel.Post);
         EventManager.Subscribe<Card.Played>(this.OnCardPlayed, EventChannel.Post);
+        EventManager.Subscribe<GameScreen.DeckDealtEvent>(this.OnDeckDealt);
+        EventManager.Subscribe<GameScreen.NewTurnEvent>(this.OnNewTurn);
     }
 
     protected override void OnShutdown()
     {
-        EventManager.UnSubscribe<Turn.StateEvent>(this.OnTurnStateChanged, EventChannel.Post);
         EventManager.UnSubscribe<Card.Played>(this.OnCardPlayed, EventChannel.Post);
+        EventManager.UnSubscribe<GameScreen.DeckDealtEvent>(this.OnDeckDealt);
+        EventManager.UnSubscribe<GameScreen.NewTurnEvent>(this.OnNewTurn);
     }
 
     protected override void OnStart()
@@ -58,8 +58,8 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
     {
         if(!Screen.HasEnded)
         {
-            // UI display
-            HumanPlayer human = Screen.CurrentTurn.Player as HumanPlayer;
+            /*// UI display
+            HumanPlayer human = Screen.CurrentPlayer as HumanPlayer;
             if (human != null)
             {
                 if (GUI.Button(new Rect(UnityEngine.Screen.width - 120, UnityEngine.Screen.height - 60, 100, 30), "End turn"))
@@ -67,17 +67,11 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
                     EventManager.SendEmptyPooledEvent<EndTurnButtonClicked>();
                 }
 
-                /*GUI.Label(new Rect(20, UnityEngine.Screen.height - 160, 100, 30), "Energy : " + human.Energy);
+                GUI.Label(new Rect(20, UnityEngine.Screen.height - 160, 100, 30), "Energy : " + human.Energy);
                 GUI.Label(new Rect(20, UnityEngine.Screen.height - 120, 100, 30), "DrawPile : " + human.DrawPile.Size);
-                GUI.Label(new Rect(UnityEngine.Screen.width - 120, UnityEngine.Screen.height - 120, 100, 30), "Discard : " + human.DiscardPile.Size);*/
+                GUI.Label(new Rect(UnityEngine.Screen.width - 120, UnityEngine.Screen.height - 120, 100, 30), "Discard : " + human.DiscardPile.Size);
             }
-            else
-            {
-                if (GUI.Button(new Rect(UnityEngine.Screen.width - 120, UnityEngine.Screen.height - 60, 100, 30), "End AI turn"))
-                {
-                    EventManager.SendEmptyPooledEvent<EndTurnButtonClicked>();
-                }
-            }
+
 
             // MinionDisplay
 
@@ -89,7 +83,7 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
                 {
                     x = 30;
                 }
-            }
+            }*/
         }
         else
         {
@@ -101,67 +95,191 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
             {
                 GUI.TextField(new Rect(20, UnityEngine.Screen.height - 160, 100, 30), "You Fail");
             }
-            
         }
     }
 
-    private void OnTurnStateChanged(Turn.StateEvent evt)
+    private void OnDeckDealt(GameScreen.DeckDealtEvent evt)
     {
-        Turn turn = evt.Turn;
-        if (turn != null)
-        {
-            HumanPlayer player = turn.Player as HumanPlayer;
-            if (player != null)
-            {
-                if (evt.Turn.IsStarted)
-                {
-                    SpawnHand(player.Hand);
-                }
-                else if (evt.Turn.IsStopped)
-                {
-                    UnSpawnHand();
-                }
-            }
-        }
+       SpawnCards();
+       Refresh();
     }
 
-    private Vector3 spawnRef = new Vector3();
-    protected void SpawnHand(Deck hand)
+    private void OnNewTurn(GameScreen.NewTurnEvent evt)
     {
-        int increment = 2;
-        spawnRef.x = -hand.Size / 2 * increment;
-        spawnRef.y = -3;
-        foreach (Card card in hand)
+       Refresh();
+    }
+
+    protected void OnCardPlayed(Card.Played evt)
+    {
+        Refresh();
+    }
+
+    protected void SpawnCards()
+    {
+        foreach (Player player in Screen.Players)
         {
-            CardComponent newCard = null; //card.Spawn();
+            SpawnCards(player);
+        }
+    }
+    protected void SpawnCards(Player player)
+    {
+        foreach (Card card in player.Hand)
+        {
+            CardComponent newCard = card.Spawn();
             if (newCard)
             {
-                m_handCards.Add(newCard);
-                newCard.SetPosInHand(spawnRef);
-
-                spawnRef.x += increment;
+                m_cards.Add(newCard);
             }
         }
     }
 
-    protected void UnSpawnHand()
+    protected void UnSpawnCards()
     {
-        foreach (CardComponent cardObj in m_handCards)
+        foreach (CardComponent cardObj in m_cards)
         {
             UnityEngine.Object.Destroy(cardObj.gameObject);
         }
-        m_handCards.Clear();
+        m_cards.Clear();
     }
 
     protected void UnSpawnCard(CardComponent cardObj)
     {
-        m_handCards.Remove(cardObj);
+        m_cards.Remove(cardObj);
         UnityEngine.Object.Destroy(cardObj.gameObject);
     }
 
-    protected CardComponent GetHandCard(Card card)
+    void Refresh()
     {
-        foreach (CardComponent cardObj in m_handCards)
+        foreach (Player player in Screen.Players)
+        {
+            RefreshHand(player);
+        }
+
+        RefreshCurrentFold();
+
+        RemovePastFolds();
+    }
+
+     private Vector3 spawnRef = new Vector3();
+    private Vector3 rotation = new Vector3();
+    protected void RefreshHand(Player player)
+    {
+        float halfHeight = Camera.main.orthographicSize;
+        float halfWidth = halfHeight*Camera.main.aspect;
+
+        float spacing = -0.4f;
+
+        if(player.Position == PlayerPosition.South)
+        {
+            spawnRef.x = -0.5f * halfWidth;
+            spawnRef.y = -0.75f * halfHeight;   
+        }
+        else  if(player.Position == PlayerPosition.West)
+        {
+            spawnRef.x = -0.85f * halfWidth;
+            spawnRef.y = 0.8f * halfHeight;     
+        }
+        else if(player.Position == PlayerPosition.North)
+        {
+            spawnRef.x = -0.5f * halfWidth;
+            spawnRef.y = 0.75f * halfHeight;   
+        }
+        else // East
+        {
+            spawnRef.x = 0.85f * halfWidth;
+            spawnRef.y = 0.8f * halfHeight;    
+        }
+        
+        foreach (Card card in player.Hand)
+        {
+            CardComponent cardComp = GetCardComponent(card);
+            if (cardComp)
+            {
+                cardComp.SetInitialPosition(spawnRef);
+
+                Renderer renderer = cardComp.gameObject.GetComponent<Renderer>();
+
+                if(player.Position == PlayerPosition.South)
+                {
+                    spawnRef.x += renderer.bounds.size.x + spacing;
+                }
+                else  if(player.Position == PlayerPosition.West)
+                {
+                    spawnRef.y -= (renderer.bounds.size.x + spacing);
+                    rotation.z = 90.0f;
+                    cardComp.gameObject.transform.eulerAngles = rotation;
+                }
+                else if(player.Position == PlayerPosition.North)
+                {
+                   spawnRef.x += renderer.bounds.size.x + spacing;
+                }
+                else // East
+                {
+                    spawnRef.y -= (renderer.bounds.size.x + spacing);
+                    rotation.z = -90.0f;
+                    cardComp.gameObject.transform.eulerAngles = rotation;
+                }
+            }
+        }
+    }
+
+    void RefreshCurrentFold()
+    {
+        float halfHeight = Camera.main.orthographicSize;
+        float halfWidth = halfHeight*Camera.main.aspect;
+
+        foreach (Card card in Screen.CurrentFold)
+        {
+            Player player = card.Owner as Player;
+
+            CardComponent cardComp = GetCardComponent(card);
+            if (cardComp)
+            {
+                if(player.Position == PlayerPosition.South)
+                {
+                    spawnRef.x = 0.0f;
+                    spawnRef.y = -0.25f * halfHeight;  
+                }
+                else  if(player.Position == PlayerPosition.West)
+                {
+                    spawnRef.x = -0.20f * halfWidth;  
+                    spawnRef.y = 0.0f;  
+                }
+                else if(player.Position == PlayerPosition.North)
+                {
+                    spawnRef.x = 0.0f;
+                    spawnRef.y = 0.25f * halfHeight;
+                }
+                else // East
+                {
+                    spawnRef.x = 0.20f * halfWidth;  
+                    spawnRef.y = 0.0f;  
+                }
+                
+                cardComp.SetInitialPosition(spawnRef);
+            }
+        }
+    }
+
+    void RemovePastFolds()
+    {
+        Deck lastFold = Screen.LastFold;
+        if(lastFold != null)
+        {
+            foreach (Card card in lastFold)
+            {
+                CardComponent cardComp = GetCardComponent(card);
+                if(cardComp)
+                {
+                    UnSpawnCard(cardComp);
+                }
+            }
+        }
+    }
+
+    protected CardComponent GetCardComponent(Card card)
+    {
+        foreach (CardComponent cardObj in m_cards)
         {
             if(cardObj.Card == card)
             {
@@ -171,14 +289,6 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
         return null;
     }
 
-    protected void OnCardPlayed(Card.Played evt)
-    {
-        CardComponent cardObj = GetHandCard(evt.Card);
-        if(cardObj)
-        {
-            UnSpawnCard(cardObj);
-        }
-    }
 }
 
 //-------------------------------------------------------------------------------------

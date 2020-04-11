@@ -47,6 +47,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -93,7 +94,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 0.2}
+  m_Size: {x: 2.4, y: 3.8, z: 0.1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &114945196885934486
 MonoBehaviour:

@@ -25,23 +25,22 @@ public partial class Card
     }
 
     //----------------------------------------------
- /*   public CardComponent Spawn()
+    public CardComponent Spawn()
     {
         if (CardStaticData.Instance.Prefab != null)
         {
-            GameObject cardObj = Object.Instantiate(CardStaticData.Instance.Prefab);
+            GameObject cardObj = Object.Instantiate(CardStaticData.Instance.Prefab) as GameObject;
             CardComponent cardComp = cardObj.GetComponent<CardComponent>();
             if(cardComp != null)
             {
                 cardComp.Init(this);
             }
-
             return cardComp;
         }
         return null;
-    }*/
+    }
 
-    public void Play(ActionQueue actionQueue)
+    public void OnPlay()
     {
         Played evt = Pools.Claim<Played>();
         evt.Init(this);

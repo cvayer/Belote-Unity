@@ -11,18 +11,29 @@ public class AIPlayer : Player
     //----------------------------------------------
     protected override void OnInit()
     {
-        EventManager.Subscribe<Turn.StateEvent>(this.OnTurnStateChanged);
+       
     }
 
     //--------------------------------------------------------------------
     protected override void OnShutdown()
     {
-        EventManager.UnSubscribe<Turn.StateEvent>(this.OnTurnStateChanged);
+        
     }
 
-    private void OnTurnStateChanged(Turn.StateEvent evt)
+    protected override void OnTurnStart() 
+    {
+        PlayAtRandom();
+    }
+
+    protected override void OnTurnStop() 
     {
 
+    }
+
+    void PlayAtRandom()
+    {
+         int indexToPlay = UnityEngine.Random.Range(0, Hand.Size);
+         Play(Hand.Cards[indexToPlay], Screen.CurrentFold);
     }
 }
 

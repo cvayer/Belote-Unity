@@ -83,6 +83,12 @@ public class Deck
         }
     }
 
+    public void Clear()
+    {
+        // TODO : Pool and release cards
+        m_cards.Clear();
+    }
+
     //------------------------------------------------------
     public void Shuffle()
     {
