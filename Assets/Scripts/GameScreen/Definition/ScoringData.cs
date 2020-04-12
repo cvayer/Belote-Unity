@@ -4,7 +4,7 @@ using System;
 [Serializable]
 public class CardPoint
 {
-    public CardEnum Value;
+    public CardValue Value;
     public int Point = 0;
     public int TrumpPoint = 0;
 }
@@ -16,7 +16,7 @@ public class ScoringData
     public int LastFold = 0;
     public int Rebelote = 20;
 
-    public int GetPoint(CardEnum value, bool trump)
+    public int GetPoint(CardValue value, bool trump)
     {
         foreach(CardPoint point in Points)
         {

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-public enum CardEnum 
+public enum CardValue 
 {
     Seven,
     Eight,
@@ -13,7 +13,7 @@ public enum CardEnum
     Ace,
 }
 
-public enum CardFamilyEnum
+public enum CardFamily
 {
     Clubs,
     Heart,

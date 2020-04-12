@@ -27,14 +27,14 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
     protected override void OnInit()
     {
         EventManager.Subscribe<Card.Played>(this.OnCardPlayed, EventChannel.Post);
-        EventManager.Subscribe<GameScreen.DeckDealtEvent>(this.OnDeckDealt);
+        EventManager.Subscribe<GameScreen.NewRoundEvent>(this.OnNewRound);
         EventManager.Subscribe<GameScreen.NewTurnEvent>(this.OnNewTurn);
     }
 
     protected override void OnShutdown()
     {
         EventManager.UnSubscribe<Card.Played>(this.OnCardPlayed, EventChannel.Post);
-        EventManager.UnSubscribe<GameScreen.DeckDealtEvent>(this.OnDeckDealt);
+        EventManager.UnSubscribe<GameScreen.NewRoundEvent>(this.OnNewRound);
         EventManager.UnSubscribe<GameScreen.NewTurnEvent>(this.OnNewTurn);
     }
 
@@ -58,6 +58,17 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
     {
         if(!Screen.HasEnded)
         {
+            if(Screen.Score != null)
+            {
+                GUI.Label(new Rect(UnityEngine.Screen.width - 320, 200, 100, 30), "Score : " + Screen.Score.GetScore(PlayerTeam.Team1) + " / " + Screen.Score.GetScore(PlayerTeam.Team2));
+                GUI.Label(new Rect(UnityEngine.Screen.width - 320, 230, 100, 30), "Trump : " + Screen.Trump);
+                GUI.Label(new Rect(UnityEngine.Screen.width - 320, 260, 100, 30), "Dealer : " + Screen.Dealer.Name);
+                GUI.Label(new Rect(UnityEngine.Screen.width - 320, 290, 100, 30), "Bidder : " + Screen.Bidder.Name);
+                GUI.Label(new Rect(UnityEngine.Screen.width - 320, 320, 100, 30), "Current : " + Screen.CurrentPlayer.Name);
+
+            }
+            
+
             /*// UI display
             HumanPlayer human = Screen.CurrentPlayer as HumanPlayer;
             if (human != null)
@@ -98,10 +109,19 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
         }
     }
 
-    private void OnDeckDealt(GameScreen.DeckDealtEvent evt)
+    private void OnNewRound(GameScreen.NewRoundEvent evt)
     {
-       SpawnCards();
-       Refresh();
+        // TODO : Spawn once, then invisible
+        if(evt.Start)
+        {
+            SpawnCards();
+        }
+        else
+        {
+            UnSpawnCards();
+        }
+            
+        Refresh();
     }
 
     private void OnNewTurn(GameScreen.NewTurnEvent evt)
@@ -228,7 +248,7 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
         float halfHeight = Camera.main.orthographicSize;
         float halfWidth = halfHeight*Camera.main.aspect;
 
-        foreach (Card card in Screen.CurrentFold)
+        foreach (Card card in Screen.CurrentFold.Deck)
         {
             Player player = card.Owner as Player;
 
@@ -263,13 +283,13 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
 
     void RemovePastFolds()
     {
-        Deck lastFold = Screen.LastFold;
+        Fold lastFold = Screen.LastFold;
         if(lastFold != null)
         {
-            foreach (Card card in lastFold)
+            foreach (Card card in lastFold.Deck)
             {
                 CardComponent cardComp = GetCardComponent(card);
-                if(cardComp)
+                if(cardComp != null)
                 {
                     UnSpawnCard(cardComp);
                 }

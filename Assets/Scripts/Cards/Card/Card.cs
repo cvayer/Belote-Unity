@@ -11,8 +11,8 @@ public partial class Card
     //----------------------------------------------
     // Variables
 
-    public CardEnum Value { get; set; }
-    public CardFamilyEnum Family { get; set; }
+    public CardValue Value { get; set; }
+    public CardFamily Family { get; set; }
 
     public IDeckOwner Owner { get; set; }
 
@@ -45,6 +45,15 @@ public partial class Card
         Played evt = Pools.Claim<Played>();
         evt.Init(this);
         EventManager.SendEvent(evt);
+    }
+
+    public int GetPoint(CardFamily? trumpFamily)
+    {
+        if(trumpFamily != null && Family == trumpFamily)
+        {
+            return TrumpPoint;
+        }
+        return Point;
     }
 
     public override string ToString()

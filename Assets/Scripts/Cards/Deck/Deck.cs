@@ -69,9 +69,9 @@ public class Deck
     //------------------------------------------------------
     public void Init(ScoringData scoring)
     {
-        foreach(CardFamilyEnum family in (CardFamilyEnum[])System.Enum.GetValues(typeof(CardFamilyEnum)))
+        foreach(CardFamily family in (CardFamily[])System.Enum.GetValues(typeof(CardFamily)))
         {
-            foreach (CardEnum value in (CardEnum[])System.Enum.GetValues(typeof(CardEnum)))
+            foreach (CardValue value in (CardValue[])System.Enum.GetValues(typeof(CardValue)))
             {
                 Card card = new Card();
                 card.Family = family;
@@ -161,7 +161,7 @@ public class Deck
     }
 
     //------------------------------------------------------
-    public void MoveAllCards(Deck other)
+    public void MoveAllCardsTo(Deck other)
     {
         MoveCardsTo(Size, other);
     }
@@ -171,19 +171,36 @@ public class Deck
         return requested > Size;
     }
 
-    private static int CompareByFamilyAndValue(Card a, Card b)
+    class CardComparer : IComparer<Card>
     {
-        int compareFamily = a.Family.CompareTo(b.Family);
-        if(compareFamily == 0)
+        public CardFamily? TrumpFamily { get; set; }
+
+        public int Compare(Card a, Card b)
         {
-              return a.Value.CompareTo(b.Value);  
+            int compareFamily = a.Family.CompareTo(b.Family);
+            if(compareFamily == 0)
+            {
+                int pointsA = a.GetPoint(TrumpFamily);
+                int pointsB = b.GetPoint(TrumpFamily);
+                return pointsB - pointsA;
+            }
+
+            if(TrumpFamily != null)
+            {
+                if(a.Family == TrumpFamily)
+                    return -1;
+                if(b.Family == TrumpFamily)
+                    return 1;
+            }
+            return compareFamily;
         }
-        return compareFamily;
     }
 
-    public void SortByFamilyAndValue()
+    static CardComparer s_comparer = new CardComparer();
+    public void SortByFamilyAndValue(CardFamily? trumpFamily)
     {
-        Cards.Sort(CompareByFamilyAndValue);
+        s_comparer.TrumpFamily = trumpFamily;
+        Cards.Sort(s_comparer);
     }
 
     public void Print(string prefix)

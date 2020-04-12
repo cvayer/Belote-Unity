@@ -22,39 +22,44 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
 
     private readonly GameScreenDefinition      m_definition;
     private Deck                               m_deck;
-    private Deck                               m_currentFold;
+    private Fold                               m_currentFold;
 
-    private List<Deck>                         m_pastFolds;
+    private List<Fold>[]                       m_pastFolds;
 
     private ActionQueue                        m_actionQueue;
 
     private EndState m_endState;
 
-    private static int s_invalidPlayerIndex = -1;
-    private int m_currentPlayerIndex = s_invalidPlayerIndex;
-
-
     private static int s_invalidRoundCount = -1;
 
-    private int m_foldsInOneRound = s_invalidRoundCount;
     private int m_currentRound = s_invalidRoundCount;
 
 
     private static float s_afterPlayDuration = 1.0f;
     private float m_afterPlayTimer = -1.0f;
 
+    public Score Score { get; set; }
+
     //----------------------------------------------
     // Properties
     public Player CurrentPlayer
     {
-        get
-        {
-            if(m_currentPlayerIndex >=0 && m_currentPlayerIndex < m_players.Count)
-            {
-                return m_players[m_currentPlayerIndex];
-            }
-            return null;
-        }
+        get; set;
+    }
+
+    public Player Dealer
+    {
+        get; set;
+    }
+
+    public Player RoundFirstPlayer
+    {
+        get; set;
+    }
+
+    public Player Bidder
+    {
+        get; set;
     }
 
     public List<Player> Players
@@ -88,30 +93,35 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
         get { return m_endState == EndState.Fail; }
     }
 
-    public Deck CurrentFold
+    public Fold CurrentFold
     {
         get { return m_currentFold; }
     }
 
-    public List<Deck> PastFolds
+    public List<Fold>[] PastFolds
     {
         get { return m_pastFolds; }
     }
 
-    public Deck LastFold
+    public PlayerTeam? LastFoldingTeam
+    {
+        get; set;
+    }
+
+    public Fold LastFold
     {
         get 
         { 
-            if(PastFolds.Count > 0)
+            if(LastFoldingTeam != null && PastFolds[(int)LastFoldingTeam].Count > 0)
             {
-                return PastFolds.Last();   
+                return PastFolds[(int)LastFoldingTeam].Last();   
             }
             return null;
         }
     }
 
     
-
+    public CardFamily Trump {get; set; }
 
     //----------------------------------------------
     public GameScreen(GameScreenDefinition definition)
@@ -121,8 +131,15 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
         m_actionQueue = new ActionQueue();
         m_endState = EndState.None;
         m_deck = new Deck(this);
-        m_currentFold = new Deck(); // A fold has no owner so that cards retain their previous players
-        m_pastFolds = new List<Deck>();
+        m_currentFold = new Fold(); 
+        m_pastFolds = new List<Fold>[Enum.GetValues(typeof(PlayerTeam)).Length];
+
+        for(int i = 0; i < m_pastFolds.Length; ++i)
+        {
+            m_pastFolds[i] = new List<Fold>();
+        }
+
+        Score = new Score();
     }
 
     //----------------------------------------------
@@ -133,6 +150,8 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
         m_deck.Init(m_definition.Scoring);
 
         EventManager.Subscribe<Card.Played>(this.OnCardPlayed);
+
+        AddPlayers();
     }
 
     
@@ -144,6 +163,7 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
         {
             player.Shutdown();
         }
+        m_players.Clear();
 
         m_deck.Clear();
     }
@@ -153,17 +173,13 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
     protected override void OnStart() 
     {
         m_deck.Shuffle();
-        AddPlayers();
 
-        m_foldsInOneRound = m_deck.Size / Players.Count;
-
-        DealCards();
-        StartFirstTurn();
+        StartRound();
     }
 
     protected override void OnStop()
     {
-
+        // TODO : recompute deck
     }
 
     //----------------------------------------------
@@ -219,43 +235,110 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
         AddPlayer<AIPlayer>(PlayerTeam.Team2, PlayerPosition.East, "East");
     }
 
+    protected Player GetLeftPlayer(Player player)
+    {
+        if(m_players.Count > 0)
+        {
+            if(player != null)
+            {
+                 int index = m_players.IndexOf(player);   
+                 index = (index + 1)% m_players.Count;
+                 return m_players[index];
+            }
+            return m_players[0];
+        }
+        return null;
+    }
+
     protected void DealCards()
     {
+        // TODO : Cut
+        // New dealer is the left player of the current player
+        Dealer = GetLeftPlayer(Dealer);
+        RoundFirstPlayer = GetLeftPlayer(Dealer);
+   
         for(int  iDeal = 0; iDeal < m_definition.DealingRules.Dealings.Count; ++iDeal)
         {
             int dealing = m_definition.DealingRules.Dealings[iDeal];
-            foreach (Player player in m_players)
+
+            Player player = RoundFirstPlayer;
+            do
             {
                 m_deck.MoveCardsTo(dealing, player.Hand);
+                player = GetLeftPlayer(player); 
             }
+            while(player != RoundFirstPlayer);
         }
 
         foreach (Player player in m_players)
         {
-            player.Hand.SortByFamilyAndValue();
-         //   player.PrintHand();
+            player.Hand.SortByFamilyAndValue(null);
+        }
+    }
+
+    //----------------------------------------------
+    void StartRound()
+    {
+        m_currentRound++;
+
+        DealCards();
+
+        // TODO : Bidding round, Random Trump for now
+        // TODO : Bidder
+        Bidder = RoundFirstPlayer;
+        Trump = (CardFamily) UnityEngine.Random.Range(0, Enum.GetValues(typeof(PlayerTeam)).Length);
+        foreach (Player player in m_players)
+        {
+            player.Hand.SortByFamilyAndValue(Trump);
         }
 
-        DeckDealtEvent evt = Pools.Claim<DeckDealtEvent>();
+        NewRoundEvent evt = Pools.Claim<NewRoundEvent>();
+        evt.Start = true;
+        EventManager.SendEvent(evt);
+
+        StartTurn(RoundFirstPlayer);
+    }
+
+    Score m_roundScore = new Score();
+    void EndRound()
+    {
+        m_roundScore.Reset();
+    
+        for(int i = 0; i < m_pastFolds.Length; ++i)
+        {
+            PlayerTeam team = (PlayerTeam) i;
+            List<Fold> folds = m_pastFolds[i];
+            foreach(Fold fold in folds)
+            {
+                m_roundScore.AddScore(team, fold.Points);  
+                fold.Deck.MoveAllCardsTo(m_deck);
+            }
+        }
+
+        PlayerTeam winningTeam = m_roundScore.GetLeadingTeam(Bidder.Team);
+
+        // TODO : Round points
+        // TODO : Bet
+        Score.AddScore(winningTeam, m_roundScore.GetScore(winningTeam));
+        // 10 de der
+        if(LastFoldingTeam != null)
+        {
+            Score.AddScore((PlayerTeam)LastFoldingTeam, 10);
+        }
+        NewRoundEvent evt = Pools.Claim<NewRoundEvent>();
+        evt.Start = false;
         EventManager.SendEvent(evt);
     }
 
     //----------------------------------------------
-    void StartFirstTurn()
+    void StartTurn(Player player)
     {
-        if(m_players.Count > 0)
-        {
-            m_currentRound = 0;
-            StartNextTurn();
-        }
-    }
-
-    //----------------------------------------------
-    void StartNextTurn()
-    {
-        m_currentPlayerIndex = (m_currentPlayerIndex + 1)% m_players.Count;
+        Player previous = CurrentPlayer;
+        CurrentPlayer = player;
 
         NewTurnEvent evt = Pools.Claim<NewTurnEvent>();
+        evt.Current = CurrentPlayer;
+        evt.Previous = previous;
         EventManager.SendEvent(evt);
     }
 
@@ -275,39 +358,52 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
 
     protected void OnAfterPlayTimerDone()
     {
-        if(CurrentFold.Size == Players.Count)
+        // One Fold is done, select new player.
+        if(CurrentFold.Deck.Size == Players.Count)
         {
-            Deck newFold = new Deck();
-            PastFolds.Add(newFold);
-            CurrentFold.MoveAllCards(newFold);
-        }
+            CurrentFold.Finalize(Trump);
 
-        if(PastFolds.Count == m_foldsInOneRound)
-        {
-            // Next Round;
-            m_currentRound ++;
+            Player winner = CurrentFold.Winner;
+            LastFoldingTeam = winner.Team;
 
+            Fold newFold = new Fold();
+            CurrentFold.MoveTo(newFold);
+            PastFolds[(int)winner.Team].Add(newFold);
 
-            StartNextTurn();
+            // New player has no cards in hand, we end the round
+            if(winner.Hand.Empty)
+            {
+                // Next Round;
+                EndRound();
+                // TODO : Win condition
+                StartRound();
+            }
+            else
+            {
+                StartTurn(winner);   
+            }
         }
         else
         {
-            StartNextTurn();    
+            StartTurn(GetLeftPlayer(CurrentPlayer));    
         }
     }
 
     //------------------------------------
     // Events
-    public class DeckDealtEvent : PooledEvent
+    public class NewRoundEvent : PooledEvent
     {
+        public bool Start { get; set;}
         public override void Reset()
         {
-
+            Start = true;
         }
     }
 
     public class NewTurnEvent : PooledEvent
     {
+        public Player Current { get; set;}
+        public Player Previous { get; set;}
         public override void Reset()
         {
 

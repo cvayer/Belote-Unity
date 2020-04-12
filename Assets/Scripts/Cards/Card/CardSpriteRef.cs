@@ -9,8 +9,8 @@ using System;
 [Serializable]
 public class CardSpriteRef
 {
-    public CardEnum Value;
-    public CardFamilyEnum Family;
+    public CardValue Value;
+    public CardFamily Family;
 
     [AssetsOnly]
     public Sprite Prefab;

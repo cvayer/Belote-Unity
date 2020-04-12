@@ -62,14 +62,16 @@ public class CardComponent : MonoBehaviour
 
     bool CanBeSelected()
     {
-        bool isHuman = m_card.Owner as HumanPlayer != null;
-        if(isHuman)
+        if(m_card != null)
         {
-            Player player = m_card.Owner as Player;
-            return player.CanPlay(m_card);
+            bool isHuman = m_card.Owner as HumanPlayer != null;
+            if(isHuman)
+            {
+                Player player = m_card.Owner as Player;
+                return player.CanPlay(m_card);
+            }
         }
-       
-        return false;
+        return false;   
     }
     
 
@@ -112,6 +114,13 @@ public class CardComponent : MonoBehaviour
             else
             {
                 transform.localPosition = m_initialPosition;
+            }
+        }
+        else
+        {
+            if(Selected)
+            {
+                SetSelected(false);
             }
         }
     }

@@ -93,7 +93,7 @@ public class Player : IDeckOwner
     }
 
     //----------------------------------------------
-    protected void Play(Card card, Deck fold)
+    protected void Play(Card card, Fold fold)
     {
         if (CanPlay(card))
         {
@@ -112,24 +112,25 @@ public class Player : IDeckOwner
     }
 
     //----------------------------------------------
-    protected void DoPlay(Card card, Deck fold)
+    protected void DoPlay(Card card, Fold fold)
     {
-        m_hand.MoveCardTo(card, fold);
+        m_hand.MoveCardTo(card, fold.Deck);
         card.OnPlay();
     }
 
     //----------------------------------------------
     private void OnNewTurn(GameScreen.NewTurnEvent evt)
     {
-       if(Screen.CurrentPlayer == this && m_isAllowedToPlay == false)
-       {
-           m_isAllowedToPlay = true;
-           OnTurnStart();
-       }
-       else if( m_isAllowedToPlay == true)
+       if(evt.Previous == this)
        {
            m_isAllowedToPlay = false;
            OnTurnStop();
+       }
+
+       if(evt.Current == this)
+       {
+           m_isAllowedToPlay = true;
+           OnTurnStart();
        }
     }
 
