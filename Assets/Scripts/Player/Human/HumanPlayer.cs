@@ -18,16 +18,16 @@ public class HumanPlayer : Player
     //----------------------------------------------
     protected override void OnInit()
     {
-        EventManager.Subscribe<Card.Selected>(this.OnCardSelectedEvent);
+        EventManager.Subscribe<BeloteCard.Selected>(this.OnCardSelectedEvent);
     }
 
     //--------------------------------------------------------------------
     protected override void OnShutdown()
     {
-        EventManager.UnSubscribe<Card.Selected>(this.OnCardSelectedEvent);
+        EventManager.UnSubscribe<BeloteCard.Selected>(this.OnCardSelectedEvent);
     }
 
-    private void OnCardSelectedEvent(Card.Selected evt)
+    private void OnCardSelectedEvent(BeloteCard.Selected evt)
     {
         if(evt.IsSelected == false && evt.OutsideOfHand)
         {

@@ -7,7 +7,7 @@ using UnityEngine;
 // GameScreen
 //----------------------------------------------
 //----------------------------------------------
-public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
+public class GameScreen : Screen, IDeckOwner
 {
     public enum EndState
     {
@@ -19,9 +19,7 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
     //----------------------------------------------
     // Variables
     private List<Player>                       m_players;
-
-    private readonly GameScreenDefinition      m_definition;
-    private Deck                               m_deck;
+    private BeloteDeck                         m_deck;
     private Fold                               m_currentFold;
 
     private List<Fold>[]                       m_pastFolds;
@@ -120,17 +118,24 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
         }
     }
 
+    public new GameScreenDefinition Definition
+    {
+        get 
+        { 
+            return base.Definition as GameScreenDefinition;
+        }
+    }
+
     
-    public CardFamily Trump {get; set; }
+    public Card32Family Trump {get; set; }
 
     //----------------------------------------------
-    public GameScreen(GameScreenDefinition definition)
+    public GameScreen()
     {
-        m_definition = definition;
         m_players = new List<Player>();
         m_actionQueue = new ActionQueue();
         m_endState = EndState.None;
-        m_deck = new Deck(this);
+        m_deck = new BeloteDeck(this);
         m_currentFold = new Fold(); 
         m_pastFolds = new List<Fold>[Enum.GetValues(typeof(PlayerTeam)).Length];
 
@@ -147,9 +152,9 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
     {
         Renderer.SetScreen(this);
 
-        m_deck.Init(m_definition.Scoring);
+        m_deck.Init(Definition.Scoring);
 
-        EventManager.Subscribe<Card.Played>(this.OnCardPlayed);
+        EventManager.Subscribe<BeloteCard.Played>(this.OnCardPlayed);
 
         AddPlayers();
     }
@@ -157,7 +162,7 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
     
     protected override void OnShutdown()
     {
-        EventManager.UnSubscribe<Card.Played>(this.OnCardPlayed);
+        EventManager.UnSubscribe<BeloteCard.Played>(this.OnCardPlayed);
 
         foreach (Player player in m_players)
         {
@@ -257,9 +262,9 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
         Dealer = GetLeftPlayer(Dealer);
         RoundFirstPlayer = GetLeftPlayer(Dealer);
    
-        for(int  iDeal = 0; iDeal < m_definition.DealingRules.Dealings.Count; ++iDeal)
+        for(int  iDeal = 0; iDeal < Definition.DealingRules.Dealings.Count; ++iDeal)
         {
-            int dealing = m_definition.DealingRules.Dealings[iDeal];
+            int dealing = Definition.DealingRules.Dealings[iDeal];
 
             Player player = RoundFirstPlayer;
             do
@@ -286,7 +291,7 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
         // TODO : Bidding round, Random Trump for now
         // TODO : Bidder
         Bidder = RoundFirstPlayer;
-        Trump = (CardFamily) UnityEngine.Random.Range(0, Enum.GetValues(typeof(PlayerTeam)).Length);
+        Trump = (Card32Family) UnityEngine.Random.Range(0, Enum.GetValues(typeof(Card32Family)).Length);
         foreach (Player player in m_players)
         {
             player.Hand.SortByFamilyAndValue(Trump);
@@ -320,6 +325,7 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
         // TODO : Round points
         // TODO : Bet
         Score.AddScore(winningTeam, m_roundScore.GetScore(winningTeam));
+
         // 10 de der
         if(LastFoldingTeam != null)
         {
@@ -351,7 +357,7 @@ public class GameScreen : Screen<GameScreenRenderer>, IDeckOwner
         }
     }
 
-    protected void OnCardPlayed(Card.Played evt)
+    protected void OnCardPlayed(BeloteCard.Played evt)
     {
         m_afterPlayTimer = s_afterPlayDuration;
     }

@@ -7,7 +7,7 @@ using UnityEngine;
 // GameScreenRenderer
 //-------------------------------------------------------
 //-------------------------------------------------------
-public class GameScreenRenderer : ScreenRenderer<GameScreen>
+public class GameScreenRenderer : ScreenRenderer
 {
     //----------------------------------------------
     // Variables
@@ -15,6 +15,14 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
 
     //----------------------------------------------
     // Properties
+
+    public new GameScreen Screen
+    {
+        get 
+        { 
+            return base.Screen as GameScreen;
+        }
+    }
 
     //----------------------------------------------
     // Methods
@@ -26,14 +34,14 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
 
     protected override void OnInit()
     {
-        EventManager.Subscribe<Card.Played>(this.OnCardPlayed, EventChannel.Post);
+        EventManager.Subscribe<BeloteCard.Played>(this.OnCardPlayed, EventChannel.Post);
         EventManager.Subscribe<GameScreen.NewRoundEvent>(this.OnNewRound);
         EventManager.Subscribe<GameScreen.NewTurnEvent>(this.OnNewTurn);
     }
 
     protected override void OnShutdown()
     {
-        EventManager.UnSubscribe<Card.Played>(this.OnCardPlayed, EventChannel.Post);
+        EventManager.UnSubscribe<BeloteCard.Played>(this.OnCardPlayed, EventChannel.Post);
         EventManager.UnSubscribe<GameScreen.NewRoundEvent>(this.OnNewRound);
         EventManager.UnSubscribe<GameScreen.NewTurnEvent>(this.OnNewTurn);
     }
@@ -129,7 +137,7 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
        Refresh();
     }
 
-    protected void OnCardPlayed(Card.Played evt)
+    protected void OnCardPlayed(BeloteCard.Played evt)
     {
         Refresh();
     }
@@ -143,7 +151,7 @@ public class GameScreenRenderer : ScreenRenderer<GameScreen>
     }
     protected void SpawnCards(Player player)
     {
-        foreach (Card card in player.Hand)
+        foreach (BeloteCard card in player.Hand)
         {
             CardComponent newCard = card.Spawn();
             if (newCard)

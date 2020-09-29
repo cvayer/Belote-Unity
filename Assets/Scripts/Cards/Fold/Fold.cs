@@ -3,13 +3,13 @@ using UnityEngine;
 
 public class Fold
 {
-    public Deck Deck { get; set;}
+    public BeloteDeck Deck { get; set;}
 
     public Player Winner { get; set; }
 
     public int Points { get; set; }
 
-    public CardFamily? Requested
+    public Card32Family? RequestedFamily
     {
         get
         {
@@ -23,7 +23,7 @@ public class Fold
 
     public Fold()
     {
-        Deck = new Deck();
+        Deck = new BeloteDeck();
     }
 
     public void MoveTo(Fold fold)
@@ -35,9 +35,9 @@ public class Fold
         Points = 0;
     }
 
-    public void Finalize(CardFamily trumpFamily)
+    public void Finalize(Card32Family trumpFamily)
     {
-        Card bestCard = GetBest(trumpFamily);
+        BeloteCard bestCard = GetBest(trumpFamily);
         if(bestCard != null)
         {
             Winner = bestCard.Owner as Player;
@@ -45,35 +45,19 @@ public class Fold
         }
     }
 
-    public Card GetBest(CardFamily trumpFamily)
+    public BeloteCard GetBest(Card32Family trumpFamily)
     {
-        CardFamily? requested = Requested;
+        Card32Family? requested = RequestedFamily;
         if(requested != null)
         {
-            Card bestCard = Deck.Cards[0];
+            BeloteCard bestCard = Deck.Cards[0];
             if(Deck.Cards.Count > 1)
             {
                 for(int  i = 1; i < Deck.Cards.Count ; ++i)
                 {
-                    Card card = Deck.Cards[i];
+                    BeloteCard card = Deck.Cards[i];
 
-                    if(card.Family == bestCard.Family)
-                    {
-                        int cardPoint = card.GetPoint(trumpFamily);
-                        int bestCardpoint = bestCard.GetPoint(trumpFamily);
-                        if(cardPoint > bestCardpoint)
-                        {
-                            bestCard = card;
-                        }    
-                    }
-                    else
-                    {
-                        if(card.Family == trumpFamily)
-                        {
-                            bestCard = card;
-                        }     
-                    }
-
+                    bestCard = BeloteCard.GetBestCard(card, bestCard, trumpFamily);
                 }    
             }
             return bestCard;
@@ -81,10 +65,10 @@ public class Fold
         return null;
     }
 
-    public int GetPoints(CardFamily trumpFamily)
+    public int GetPoints(Card32Family trumpFamily)
     {
         int points = 0;
-        foreach(Card card in Deck.Cards)
+        foreach(BeloteCard card in Deck.Cards)
         {
             points += card.GetPoint(trumpFamily);
         }

@@ -17,7 +17,7 @@ public class CardStaticData : Singleton<CardStaticData>
     public GameObject Prefab;
 
 
-    public Sprite GetSprite(CardValue Value, CardFamily Family)
+    public Sprite GetSprite(Card32Value Value, Card32Family Family)
     {
         foreach(CardSpriteRef cardRef in CardSprites)
         {

@@ -20,20 +20,27 @@ public class AIPlayer : Player
         
     }
 
+    //--------------------------------------------------------------------
     protected override void OnTurnStart() 
     {
         PlayAtRandom();
     }
 
+    //--------------------------------------------------------------------
     protected override void OnTurnStop() 
     {
 
     }
 
+    //--------------------------------------------------------------------
     void PlayAtRandom()
     {
-         int indexToPlay = UnityEngine.Random.Range(0, Hand.Size);
-         Play(Hand.Cards[indexToPlay], Screen.CurrentFold);
+        if(TurnPlayableCards != null && ! TurnPlayableCards.Empty)
+        {
+            int indexToPlay = UnityEngine.Random.Range(0, TurnPlayableCards.Size);
+            Play(TurnPlayableCards.Cards[indexToPlay], Screen.CurrentFold);
+        }
+         
     }
 }
 

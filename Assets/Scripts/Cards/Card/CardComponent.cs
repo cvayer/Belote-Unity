@@ -10,7 +10,7 @@ public class CardComponent : MonoBehaviour
 {
     //----------------------------------------------
     // Variables
-    private Card m_card;
+    private BeloteCard m_card;
     private bool m_isHovered = false;
     private bool m_isSelected = false;
     private Vector3 m_initialPosition = new Vector3();
@@ -28,7 +28,7 @@ public class CardComponent : MonoBehaviour
         get { return m_isSelected; }
     }
 
-    public Card Card
+    public BeloteCard Card
     {
         get { return m_card; }
     }
@@ -39,7 +39,7 @@ public class CardComponent : MonoBehaviour
         
     }
 
-    public void Init(Card card)
+    public void Init(BeloteCard card)
     {
         m_card = card;
         m_isHovered = false;
@@ -157,7 +157,7 @@ public class CardComponent : MonoBehaviour
 
             m_isSelected = selected;
 
-            Card.Selected evt = Pools.Claim<Card.Selected>();
+            BeloteCard.Selected evt = Pools.Claim<BeloteCard.Selected>();
             evt.Init(m_card, m_isSelected, isInHandArea);
             EventManager.SendEvent(evt);
         }
