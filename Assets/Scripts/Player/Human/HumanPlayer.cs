@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using Pebble;
 
 //----------------------------------------------
 //----------------------------------------------
@@ -31,7 +32,7 @@ public class HumanPlayer : Player
     {
         if(evt.IsSelected == false && evt.OutsideOfHand)
         {
-            Play(evt.Card, Screen.CurrentFold);
+            Play(evt.Card, Stage.CurrentFold);
         }
     }
 }

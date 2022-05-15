@@ -1,12 +1,10 @@
-using System;
-using UnityEngine;
-
+using Pebble; 
 //-------------------------------------------------------
 //-------------------------------------------------------
 // ExampleClass
 //-------------------------------------------------------
 //-------------------------------------------------------
-public class BeloteGame : ScreenComponent<GameScreen, GameScreenRenderer, GameScreenDefinition>
+public class BeloteGame : StageComponent<GameStage, GameStageDefinition>
 {
 
 }

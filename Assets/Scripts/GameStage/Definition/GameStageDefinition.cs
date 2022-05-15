@@ -1,19 +1,14 @@
-using Sirenix.OdinInspector;
-using UnityEngine;
-using System;
+﻿using UnityEngine;
 using Pebble;
 
 //-------------------------------------------------------
 //-------------------------------------------------------
-// CardPrefabRef
+// GameStageDefinition
 //-------------------------------------------------------
 //-------------------------------------------------------
-[Serializable]
-public class CardSpriteRef
-{
-    public Card32Value Value;
-    public Card32Family Family;
+public class GameStageDefinition : StageDefinition
+{ 
+    public DealingRulesData DealingRules;
 
-    [AssetsOnly]
-    public Sprite Prefab;
+    public ScoringData Scoring;
 }

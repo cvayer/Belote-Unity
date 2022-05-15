@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
+using Pebble;
 
 //----------------------------------------------
 //----------------------------------------------
@@ -12,7 +11,7 @@ public class Player : IDeckOwner
 
     //----------------------------------------------
     // Variables
-    protected GameScreen m_screen;
+    protected GameStage m_stage;
     private   BeloteDeck m_hand;
 
     private bool m_isAllowedToPlay = false;
@@ -20,15 +19,15 @@ public class Player : IDeckOwner
     //----------------------------------------------
     // Properties
 
-    public GameScreen Screen
+    public GameStage Stage
     {
         get
         {
-            return m_screen;
+            return m_stage;
         }
         set
         {
-            m_screen = value;
+            m_stage = value;
         }
     }
 
@@ -60,7 +59,7 @@ public class Player : IDeckOwner
     //----------------------------------------------
     public void Init()
     {
-        EventManager.Subscribe<GameScreen.NewTurnEvent>(this.OnNewTurn);
+        EventManager.Subscribe<GameStage.NewTurnEvent>(this.OnNewTurn);
 
         OnInit();
     }
@@ -75,7 +74,7 @@ public class Player : IDeckOwner
     public void Shutdown()
     {
         OnShutdown();
-        EventManager.UnSubscribe<GameScreen.NewTurnEvent>(this.OnNewTurn);
+        EventManager.UnSubscribe<GameStage.NewTurnEvent>(this.OnNewTurn);
     }
 
     //--------------------------------------------------------------------
@@ -219,7 +218,7 @@ public class Player : IDeckOwner
     }
 
     //----------------------------------------------
-    private void OnNewTurn(GameScreen.NewTurnEvent evt)
+    private void OnNewTurn(GameStage.NewTurnEvent evt)
     {
        if(evt.Previous == this)
        {
@@ -232,7 +231,7 @@ public class Player : IDeckOwner
        {
            m_isAllowedToPlay = true;
 
-           TurnPlayableCards = ComputePlayableCards(Screen.CurrentFold, Screen.Trump);
+           TurnPlayableCards = ComputePlayableCards(Stage.CurrentFold, Stage.Trump);
            OnTurnStart();
        }
     }

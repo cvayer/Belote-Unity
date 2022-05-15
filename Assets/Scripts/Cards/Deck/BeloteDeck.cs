@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
+using Pebble;
 
 //----------------------------------------------
 //----------------------------------------------
@@ -8,7 +7,7 @@ using UnityEngine;
 //----------------------------------------------
 //----------------------------------------------
 
-public class BeloteDeck : Deck<BeloteCard>
+public class BeloteDeck : BaseDeck<BeloteCard>
 {
     //------------------------------------------------------
     public BeloteDeck()

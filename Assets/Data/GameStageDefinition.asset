@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 69a589c2e2ee4ef48850d610a140b276, type: 3}
-  m_Name: GameScreenDefinition
+  m_Name: GameStageDefinition
   m_EditorClassIdentifier: 
   serializationData:
     SerializedFormat: 2
